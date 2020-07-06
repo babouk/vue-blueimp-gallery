@@ -2476,12 +2476,12 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"5be24f1b-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/gallery.vue?vue&type=template&id=f1b0ba12&
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"blueimp-gallery blueimp-gallery-controls",class:{ 'blueimp-gallery-carousel': _vm.carousel },attrs:{"id":_vm.id}},[_c('div',{staticClass:"slides"}),_c('h1',{staticClass:"title"}),_c('div',{staticClass:"caption"}),_c('a',{staticClass:"prev"},[_vm._t("prev",[_vm._v("‹")])],2),_c('a',{staticClass:"next"},[_vm._t("next",[_vm._v("›")])],2),(!_vm.carousel)?_c('a',{staticClass:"close"},[_vm._t("close",[_vm._v("×")])],2):_vm._e(),(!_vm.carousel)?_c('ol',{staticClass:"indicator"}):_vm._e(),(_vm.carousel)?_c('a',{staticClass:"play-pause"}):_vm._e()])}
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"5be24f1b-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/gallery.vue?vue&type=template&id=64edfb97&
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"blueimp-gallery blueimp-gallery-controls",class:{ 'blueimp-gallery-carousel': _vm.carousel },attrs:{"id":_vm.id}},[_c('div',{staticClass:"slides"}),_c('h1',{staticClass:"title"}),_c('div',{staticClass:"caption-panel"},[_c('a',{staticClass:"control button is-primary caption-edit",on:{"click":function($event){return _vm.toggleCaptionInput()}}},[_vm._t("caption-edit",[_vm._v("Edit")])],2),(!_vm.showCaptionInput && _vm.caption.html !== undefined && _vm.caption.html.length > 0)?_c('div',{staticClass:"caption",domProps:{"innerHTML":_vm._s(_vm.caption.html)}}):_vm._e(),(_vm.showCaptionInput)?_c('textarea',{directives:[{name:"model",rawName:"v-model",value:(_vm.caption.markdown),expression:"caption.markdown"}],ref:"captionInput",staticClass:"caption-textarea",attrs:{"rows":"5"},domProps:{"value":(_vm.caption.markdown)},on:{"input":function($event){if($event.target.composing){ return; }_vm.$set(_vm.caption, "markdown", $event.target.value)}}}):_vm._e()]),_c('a',{staticClass:"prev"},[_vm._t("prev",[_vm._v("‹")])],2),_c('a',{staticClass:"next"},[_vm._t("next",[_vm._v("›")])],2),_c('div',{staticClass:"toolbar"},[_vm._t("toolbar",[_c('a',{staticClass:"control button remove is-primary",on:{"click":function($event){return _vm.removeActiveItem()}}},[_vm._v("\n        Delete\n      ")]),(!_vm.carousel)?_c('a',{staticClass:"control button close is-primary"},[_vm._v("\n        ×\n      ")]):_vm._e()])],2),(!_vm.carousel)?_c('ol',{staticClass:"indicator"}):_vm._e(),(_vm.carousel)?_c('a',{staticClass:"play-pause"}):_vm._e()])}
 var staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./src/gallery.vue?vue&type=template&id=f1b0ba12&
+// CONCATENATED MODULE: ./src/gallery.vue?vue&type=template&id=64edfb97&
 
 // EXTERNAL MODULE: ./node_modules/blueimp-gallery/css/blueimp-gallery.min.css
 var blueimp_gallery_min = __webpack_require__("a4b2");
@@ -2519,6 +2519,19 @@ var blueimp_gallery_default = /*#__PURE__*/__webpack_require__.n(blueimp_gallery
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -2537,7 +2550,7 @@ var blueimp_gallery_default = /*#__PURE__*/__webpack_require__.n(blueimp_gallery
       type: String,
       default: "blueimp-gallery",
     },
-    images: {
+    items: {
       type: Array,
       default: () => [],
     },
@@ -2545,60 +2558,94 @@ var blueimp_gallery_default = /*#__PURE__*/__webpack_require__.n(blueimp_gallery
       type: Object,
       default: () => ({}),
     },
-    index: {
+    origin: {
       type: Number,
       default: -1,
     },
   },
   data() {
     return {
-      instance: null,
+      blimga: null, // blueimpGallery object
+      showCaptionInput: false,
+      caption: { markdown: "", html: "" },
+      index: -1,
     };
   },
   destroyed() {
-    if (this.instance !== null) {
-      this.instance.destroyEventListeners();
-      this.instance.close();
-      this.instance = null;
+    if (this.blimga !== null) {
+      this.blimga.destroyEventListeners();
+      this.blimga.close();
+      this.blimga = null;
     }
   },
+  mounted() {},
   watch: {
-    index(value) {
+    /**
+     * Fire gallery set up when the origin property value changes.
+     */
+    origin(value) {
       if (this.carousel) {
         return;
       }
 
-      if (value !== null) {
-        if (this.instance == null) {
-          this.instantiate();
-        }
-        this.instance.slide(value);
+      if (value !== null && value >= 0) {
+        this.setup();
+        this.blimga.slide(value);
       } else {
-        if (this.instance !== null) {
-          this.instance.close();
+        if (this.blimga !== null) {
+          this.blimga.close();
         }
-        this.$emit("close");
+      }
+    },
+    /**
+     * In case one or several items get deleted, reset the gallery with the new items
+     * and position it at the previous slide.
+     */
+    items(newValue, oldValue) {
+      if (newValue !== null && newValue.length > 0) {
+        const diff = oldValue.length - newValue.length;
+        if (diff > 0) {
+          let position = this.blimga.getIndex();
+          if (position > diff - 1) position = position - diff;
+          else position = 0;
+          this.setup(position);
+        }
       }
     },
   },
   methods: {
-    instantiate() {
-      console.log("instantiating...");
+    removeActiveItem() {
+      const position = this.blimga.getIndex();
+      if (this.options.onItemRemove !== undefined) {
+        this.options.onItemRemove(position);
+      }
+    },
+    onCaptionLoaded(caption) {
+      this.caption = caption;
+    },
+    /**
+     * Gallery current position.
+     */
+    getIndex() {
+      return this.index;
+    },
+    setup(position) {
       const options = Object.assign(
         {
-          toggleControlsOnReturn: false,
+          toggleControlsOnEnter: false,
+          toggleSlideshowOnSpace: false,
           toggleControlsOnSlideClick: false,
           closeOnSlideClick: false,
           carousel: this.carousel,
           container: `#${this.id}`,
-          index: this.index,
-          onopen: () => this.$emit("onopen"),
-          onopened: () => this.$emit("onopened"),
-          onslide: this.onSlide,
-          onslideend: (index, slide) => this.$emit("onslideend", { index, slide }),
-          onslidecomplete: (index, slide) => this.$emit("onslidecomplete", { index, slide }),
-          onclose: () => this.$emit("close"),
-          onclosed: () => this.$emit("onclosed"),
+          index: position !== undefined ? position : this.origin,
+          onslide: (index, slide) => {
+            if (this.items[index] !== undefined) {
+              this.caption = { markdown: this.items[index].markdown, html: this.items[index].description };
+            }
+            this.index = index;
+            this.showCaptionInput = false;
+          },
         },
         this.options
       );
@@ -2607,24 +2654,22 @@ var blueimp_gallery_default = /*#__PURE__*/__webpack_require__.n(blueimp_gallery
         options.container = this.$el;
       }
 
-      this.instance = blueimp_gallery_default()(this.images, options);
+      this.blimga = blueimp_gallery_default()(this.items, options);
     },
-
-    onSlide(index, slide) {
-      console.log("onSlide", index, slide);
-      this.$emit("onslide", { index, slide });
-      const image = this.images[index];
-      if (image !== undefined) {
-        const caption = image.caption;
-        const node = this.instance.container.find(".caption");
-        if (caption !== undefined) {
-          node[0].innerHTML = caption;
-          node[0].style.display = "block";
+    async toggleCaptionInput() {
+      if (this.showCaptionInput && this.options.onCaptionUpdate !== undefined) {
+        const result = await this.options.onCaptionUpdate({ index: this.index, caption: { markdown: this.caption.markdown }, show: this.showCaptionInput });
+        console.log("toggleCaption", result);
+        const position = this.blimga.getIndex();
+        if (this.items[position] !== undefined) {
+          this.items[position].markdown = this.caption.markdown;
+          this.items[position].description = result;
+          this.caption.html = result;
         } else {
-          node[0].innerHTML = "";
-          node[0].style.display = "none";
+          console.log("[gallery.vue] [warning] no item found at position", position, this.items);
         }
       }
+      this.showCaptionInput = !this.showCaptionInput;
     },
   },
 });
