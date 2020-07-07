@@ -127,6 +127,11 @@ export default {
     getIndex() {
       return this.index;
     },
+    toggleKeyboardNavigation() {
+      if (this.blimga !== null) {
+        this.blimga.options.enableKeyboardNavigation = !this.blimga.options.enableKeyboardNavigation;
+      }
+    },
     setup(position) {
       const options = Object.assign(
         {
@@ -167,6 +172,7 @@ export default {
           console.log("[gallery.vue] [warning] no item found at position", position, this.items);
         }
       }
+      this.toggleKeyboardNavigation();
       this.showCaptionInput = !this.showCaptionInput;
     },
   },
